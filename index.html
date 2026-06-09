@@ -528,6 +528,8 @@ h1.q-title {
 .card.extra-open {
   background: var(--bg-soft);
   border: 1px solid var(--border);
+  overflow-wrap: break-word;
+  word-wrap: break-word;
 }
 .card.extra-open .extra-body {
   color: var(--text-soft);
@@ -536,9 +538,18 @@ h1.q-title {
 }
 .card.extra-open .extra-body p { margin: 0 0 12px; }
 .card.extra-open .extra-body p:last-child { margin-bottom: 0; }
-.card.extra-open .extra-body ul { margin: 0 0 12px; padding-left: 24px; }
-.card.extra-open .extra-body li { padding: 4px 0; }
-.card.extra-open .extra-body ul ul { margin: 6px 0; }
+.card.extra-open .extra-body ul {
+  margin: 0 0 12px;
+  padding-left: 22px;
+  list-style: disc;
+}
+.card.extra-open .extra-body ul ul { margin: 6px 0; list-style: circle; }
+.card.extra-open .extra-body li {
+  padding: 4px 0;
+  border: none;
+}
+.card.extra-open .extra-body li::before { content: none; }      /* отключаем наследованную точку */
+.card.extra-open .extra-body li::marker { color: var(--accent); font-size: 15px; }
 .card.extra-open .extra-body strong, .card.extra-open .extra-body b { color: var(--text); }
 .card.extra-open .extra-body code {
   background: var(--card);
@@ -550,6 +561,18 @@ h1.q-title {
   font-weight: 700;
 }
 .card.extra-open .extra-body em { color: var(--text-soft); font-style: italic; }
+
+/* ─── Подсветка ключевых терминов ─────────────────────────────── */
+mark {
+  background: linear-gradient(transparent 55%, var(--accent-soft) 55%);
+  color: inherit;
+  padding: 0 3px;
+  border-radius: 2px;
+  font-weight: 700;
+}
+[data-theme="dark"] mark {
+  background: var(--accent-soft);
+}
 .card.example .ex-tag {
   display: inline-block;
   font-size: 11px;
@@ -733,6 +756,113 @@ tr:last-child td { border-bottom: none; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+/* ─── Личные заметки под вопросом ─────────────────────────────── */
+.card.notes {
+  background: var(--bg);
+  border: 1px dashed var(--border);
+}
+.card.notes h3 { color: var(--text-muted); }
+.card.notes textarea {
+  width: 100%;
+  min-height: 80px;
+  border: none;
+  background: transparent;
+  font-family: 'Comfortaa', inherit;
+  font-size: 15px;
+  color: var(--text);
+  resize: vertical;
+  outline: none;
+  line-height: 1.6;
+}
+.card.notes textarea::placeholder { color: var(--text-muted); font-style: italic; }
+.card.notes .notes-saved {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 6px;
+  font-style: italic;
+}
+
+/* ─── Оверлей «Мнемоники подряд» ──────────────────────────────── */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, .65);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 200;
+  display: none;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 40px 20px;
+  overflow-y: auto;
+}
+.overlay.show { display: flex; }
+.overlay-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 28px 32px 32px;
+  max-width: 760px;
+  width: 100%;
+  box-shadow: var(--shadow-lg);
+  position: relative;
+  margin: auto 0;
+}
+.overlay-card h2 {
+  font-size: 22px;
+  margin: 0 0 6px;
+  color: var(--accent);
+  font-weight: 700;
+}
+.overlay-card .overlay-sub {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 20px;
+}
+.overlay-close {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--bg-soft);
+  color: var(--text-soft);
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+}
+.overlay-close:hover { background: var(--accent-soft); color: var(--accent); }
+
+.mnemo-list { display: flex; flex-direction: column; gap: 14px; }
+.mnemo-item {
+  padding: 14px 18px;
+  border-radius: var(--radius-sm);
+  background: var(--accent-soft);
+  border-left: 4px solid var(--accent);
+}
+.mnemo-item .mnemo-q {
+  font-size: 12px;
+  color: var(--text-soft);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  margin-bottom: 4px;
+  font-weight: 700;
+}
+.mnemo-item .mnemo-q b { color: var(--accent); margin-right: 8px; }
+.mnemo-item .mnemo-body {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--accent);
+  line-height: 1.45;
+}
+
+@media (max-width: 600px) {
+  .overlay-card { padding: 22px 18px 24px; }
+  .overlay-card h2 { font-size: 18px; }
+  .mnemo-item .mnemo-body { font-size: 15px; }
+}
 </style>
 </head>
 <body>
@@ -750,9 +880,19 @@ tr:last-child td { border-bottom: none; }
     </div>
     <div class="spacer"></div>
     <input type="search" placeholder="🔍 Найти вопрос по слову…" id="search" autocomplete="off" spellcheck="false">
+    <button class="icon-btn" id="btnMnemo" title="Все мнемоники по предмету">🎯</button>
     <button class="icon-btn" id="btnHide" title="Скрыть ответ (для самопроверки)">👁</button>
     <button class="icon-btn" id="btnTheme" title="Сменить тему">🌙</button>
   </header>
+
+  <div class="overlay" id="overlay">
+    <div class="overlay-card" id="overlayCard">
+      <button class="overlay-close" id="overlayClose" title="Закрыть (Esc)">×</button>
+      <h2 id="overlayTitle">Мнемоники</h2>
+      <div class="overlay-sub" id="overlaySub"></div>
+      <div class="mnemo-list" id="mnemoList"></div>
+    </div>
+  </div>
 
   <aside class="side" id="sidebar">
     <div class="section-title">Предметы</div>
@@ -949,6 +1089,15 @@ function renderMain() {
         <div class="extra-body">${q.extra}</div>
       </div>`;
     }
+
+    // Личные заметки
+    const noteKey = 'gek-note-' + state.subject + '-' + q.n;
+    const noteVal = localStorage.getItem(noteKey) || '';
+    html += `<div class="card notes">
+      <h3><span class="ico">✎</span> Мои заметки</h3>
+      <textarea id="noteArea" placeholder="Запиши сюда своё — что услышала от препода, своя ассоциация, нюансы…">${noteVal.replace(/</g,'&lt;')}</textarea>
+      <div class="notes-saved" id="notesSaved">${noteVal ? 'Сохранено локально в этом браузере' : 'Пока пусто — здесь будут только твои мысли'}</div>
+    </div>`;
   }
 
   // навигация
@@ -988,6 +1137,45 @@ function renderMain() {
       render();
     };
   });
+
+  // Bind notes textarea
+  const noteArea = main.querySelector('#noteArea');
+  if (noteArea) {
+    const noteKey = 'gek-note-' + state.subject + '-' + q.n;
+    const savedTxt = main.querySelector('#notesSaved');
+    let timer;
+    noteArea.oninput = () => {
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        const v = noteArea.value;
+        if (v) localStorage.setItem(noteKey, v);
+        else localStorage.removeItem(noteKey);
+        if (savedTxt) savedTxt.textContent = v ? '✓ Сохранено локально (' + new Date().toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}) + ')' : 'Пока пусто';
+      }, 400);
+    };
+  }
+}
+
+/* ─── Оверлей мнемоник ────────────────────────────────────────── */
+function openMnemoOverlay() {
+  const subj = DATA[state.subject];
+  if (!subj) return;
+  const list = subj.questions.filter(q => q.mnemo);
+  document.getElementById('overlayTitle').textContent = '🎯 Мнемоники: ' + subj.title;
+  document.getElementById('overlaySub').textContent = list.length + ' штук. Прокрути и проверь себя — какие из них уже на «зубок».';
+  const html = list.map(q => `
+    <div class="mnemo-item">
+      <div class="mnemo-q"><b>Q${q.n}</b>${q.title}</div>
+      <div class="mnemo-body">${q.mnemo}</div>
+    </div>
+  `).join('');
+  document.getElementById('mnemoList').innerHTML = html;
+  document.getElementById('overlay').classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+function closeMnemoOverlay() {
+  document.getElementById('overlay').classList.remove('show');
+  document.body.style.overflow = '';
 }
 
 /* ─── Theme & accent ──────────────────────────────────────────── */
@@ -1041,8 +1229,19 @@ function closeMenu() {
 }
 document.getElementById('btnMenu').onclick = openMenu;
 document.getElementById('scrim').onclick = closeMenu;
+document.getElementById('btnMnemo').onclick = openMnemoOverlay;
+document.getElementById('overlayClose').onclick = closeMnemoOverlay;
+document.getElementById('overlay').addEventListener('click', (e) => {
+  if (e.target.id === 'overlay') closeMnemoOverlay();
+});
 
 document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    if (document.getElementById('overlay').classList.contains('show')) {
+      closeMnemoOverlay();
+      return;
+    }
+  }
   if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
   if (e.key === 'ArrowRight' || e.key === 'j') {
     state.qIndex = Math.min(DATA[state.subject].questions.length - 1, state.qIndex + 1);
@@ -1054,6 +1253,7 @@ document.addEventListener('keydown', (e) => {
   }
   if (e.key === 'h') document.getElementById('btnHide').click();
   if (e.key === 't') document.getElementById('btnTheme').click();
+  if (e.key === 'm') openMnemoOverlay();
   if (e.key === '/') { e.preventDefault(); document.getElementById('search').focus(); }
 });
 
@@ -1070,7 +1270,7 @@ applyTheme();
 window.GEK_DATA = {
   et: { title: "Эконом теория", color: "#4F46E5", colorSoft: "#EEF2FF", questions: [
     { n: 1, title: "Предмет и методы экономической теории",
-      definition: "<strong>Экономическая теория</strong> — наука, которая изучает, как люди и страны делают выбор, когда ресурсов мало, а потребностей много. Она объясняет, как устроены производство, распределение, обмен и потребление благ в обществе.",
+      definition: "<strong>Экономическая теория</strong> — наука, которая изучает, как люди и страны делают <mark>выбор</mark>, когда <mark>ресурсов мало</mark>, а <mark>потребностей много</mark>. Она объясняет, как устроены <mark>производство, распределение, обмен и потребление</mark> благ в обществе.",
       bullets: [
         "<b>Предмет ЭТ</b> — экономические отношения людей в процессе производства, распределения, обмена и потребления благ.",
         "<b>Главная проблема</b>: ограниченность ресурсов при безграничных потребностях.",
@@ -1166,7 +1366,7 @@ window.GEK_DATA = {
         <p><strong>Невозобновляемые ресурсы</strong>: нефть, газ, металлы — кончаются. Возобновляемые: лес, вода, солнечная энергия.</p>`
     },
     { n: 4, title: "Ограниченность ресурсов и кривая производственных возможностей",
-      definition: "<strong>Ограниченность ресурсов</strong> — главный экономический факт: их всегда меньше, чем нужно для удовлетворения всех потребностей. Отсюда центральная проблема — <strong>проблема выбора</strong>. <strong>Кривая производственных возможностей (КПВ, кривая трансформации)</strong> — графическая модель, которая показывает: чтобы сделать больше одного товара, нужно отказаться от части другого.",
+      definition: "<strong>Ограниченность ресурсов</strong> — главный экономический факт: их <mark>всегда меньше, чем нужно</mark>. Отсюда центральная проблема — <strong>проблема выбора</strong>. <strong>Кривая производственных возможностей (КПВ, кривая трансформации)</strong> — графическая модель: чтобы сделать <mark>больше одного товара, нужно отказаться от части другого</mark>.",
       bullets: [
         "<b>Что показывает КПВ</b>: максимальные сочетания двух товаров, которые экономика может произвести при полном использовании всех имеющихся ресурсов.",
         "Точка <b>на</b> кривой — полное и эффективное использование ресурсов.",
@@ -1837,10 +2037,10 @@ window.GEK_DATA = {
 
   tm: { title: "Теория маркетинга", color: "#F97316", colorSoft: "#FFF7ED", questions: [
     { n: 1, title: "Становление и развитие маркетинга",
-      definition: "<strong>Маркетинг</strong> — это работа компании ради покупателя: узнать, что ему нужно, закрыть это лучше конкурентов и заработать. Три классических определения, которые стоит знать наизусть:<br><br>" +
-        "<b>Ф. Котлер:</b> вид человеческой деятельности, направленный на удовлетворение нужд и потребностей путём обмена.<br>" +
-        "<b>И.Л. Акулич (БГЭУ):</b> деятельность по изучению рынка и потребителей с целью разработки и продвижения товаров и услуг для получения прибыли.<br>" +
-        "<b>AMA (Американская ассоциация маркетинга):</b> деятельность, набор институтов и процессов создания, передачи и доставки ценности клиентам, партнёрам и обществу.",
+      definition: "<strong>Маркетинг</strong> — это работа компании <mark>ради покупателя</mark>: узнать, что ему нужно, закрыть это лучше конкурентов и заработать. Три классических определения, которые стоит знать наизусть:<br><br>" +
+        "<b>Ф. Котлер:</b> вид человеческой деятельности, направленный на <mark>удовлетворение нужд и потребностей путём обмена</mark>.<br>" +
+        "<b>И.Л. Акулич (БГЭУ):</b> деятельность по изучению <mark>рынка и потребителей</mark> с целью разработки и продвижения товаров и услуг для <mark>получения прибыли</mark>.<br>" +
+        "<b>AMA (Американская ассоциация маркетинга):</b> деятельность, набор институтов и процессов создания, передачи и доставки <mark>ценности клиентам, партнёрам и обществу</mark>.",
       bullets: [
         "<b>Базовые понятия</b>: нужда → потребность → спрос → товар → обмен → сделка → рынок.",
         "<b>4 базовые функции</b>: аналитическая, производственная, сбытовая, управление качеством.",
@@ -2293,7 +2493,7 @@ window.GEK_DATA = {
       mnemo: "Прямой = «Лично тебе, по имени, с предложением»."
     },
     { n: 22, title: "Маркетинг взаимоотношений",
-      definition: "<strong>Маркетинг взаимоотношений</strong> — концепция, при которой компания строит долгие связи <b>со всеми участниками рынка</b>, а не только с клиентами. Цель — устойчивый бизнес и совместное создание ценности.",
+      definition: "<strong>Маркетинг взаимоотношений</strong> — концепция, при которой компания строит долгие связи <mark>со всеми участниками рынка</mark>, а не только с клиентами. Цель — <mark>устойчивый бизнес и совместное создание ценности</mark>.",
       bullets: [
         "Главное отличие от классики: фокус не на одной сделке, а на <b>длительных отношениях</b>.",
         "<b>5 групп партнёров</b> компании: <em>клиенты, сотрудники, поставщики, посредники / дистрибьюторы, общество (соцсети, СМИ, власть)</em>. Со всеми нужно строить связи.",
