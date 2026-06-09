@@ -444,6 +444,14 @@ h1.q-title {
   background: var(--card);
 }
 
+/* ─── Subject intro (слово препода / напоминалка) ─────────────── */
+.card.subj-intro {
+  background: var(--accent-soft);
+  border: 1px dashed var(--accent);
+}
+.card.subj-intro h3 { color: var(--accent); }
+.card.subj-intro p { font-size: 15.5px; color: var(--text); line-height: 1.65; }
+
 /* ─── График ─────────────────────────────────────────────────── */
 .card.chart-card { padding: 18px 22px 22px; }
 .chart-wrap {
@@ -842,6 +850,10 @@ function renderMain() {
       <span class="q-num">Вопрос ${q.n} / ${subj.questions.length}</span>
     </div>
     <h1 class="q-title">${q.title}</h1>
+    ${(state.qIndex === 0 && subj.intro) ? `<div class="card subj-intro">
+      <h3><span class="ico">💬</span> ${subj.intro.title || 'Слово препода'}</h3>
+      <p>${subj.intro.text}</p>
+    </div>` : ''}
 
     <div class="actions">
       <button class="btn btn-primary" data-act="known">✓ Знаю</button>
@@ -2222,7 +2234,12 @@ window.GEK_DATA = {
     }
   ]},
 
-  bank: { title: "Маркетинг в банке", color: "#8B5CF6", colorSoft: "#F3EEFE", questions: [
+  bank: { title: "Маркетинг в банке", color: "#8B5CF6", colorSoft: "#F3EEFE",
+    intro: {
+      title: "Слово препода — настрой комиссии",
+      text: "Препод на консультации прошлась <b>бегло по базе</b>: вклады, цены, кредиты, общая концепция. Глубоких теоретических ловушек не ждёт. Дословно: <em>«У нас нет цели завалить — у нас есть цель выдать вам диплом и отпустить в мир».</em><br><br>Стратегия на экзамен: <b>уверенно ответить базу</b> — определение, продукты, ценовая политика, каналы, коммуникации. Не лезь в дебри ESG/CBDC, если не уверен."
+    },
+    questions: [
     { n: 1, title: "Сущность и содержание банковского маркетинга",
       definition: "<strong>Банковский маркетинг</strong> — это работа банка ради клиента: понять, что ему нужно, и продать банковский продукт с прибылью.",
       bullets: [
